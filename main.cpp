@@ -1,6 +1,26 @@
 #include "inc/common.h"
 
-void sfml();
+class collideObject
+{
+private:
+    
+    sf::RectangleShape objectShape;
+    
+public:
+    
+    collideObject(sf::Vector2f objectSize, sf::Vector2f objectPos, sf::Color objectCol)
+    {
+        objectShape.setSize(objectSize);
+        objectShape.setPosition(objectPos);
+        objectShape.setFillColor(objectCol);
+    }
+    
+    sf::RectangleShape getObject()
+    {
+        return objectShape;
+    }
+    
+};
 
 class character
 {
@@ -37,15 +57,22 @@ public:
         
     }
     
-    void move(std::string direction)
+    sf::RectangleShape getCharacter()
+    {
+        return characterShape;
+    }
+    
+    void charMove(std::string direction, std::vector<collideObject> vecCollideObjects)
     {
         if(direction == "up")
         {
             for(int i = 0; i < speed; i++)
             {
                 updateBuffer();
-                //updateCollide(direction);
-                characterShape.move(0, -1);
+                if(updateCollide(direction, vecCollideObjects) == 0)
+                {
+                    characterShape.move(0, -1);
+                }
             }
         }
         if(direction == "down")
@@ -53,8 +80,10 @@ public:
             for(int i = 0; i < speed; i++)
             {
                 updateBuffer();
-                //updateCollide(direction);
-                characterShape.move(0, 1);
+                if(updateCollide(direction, vecCollideObjects) == 0)
+                {
+                    characterShape.move(0, 1);
+                }
             }
         }
         if(direction == "left")
@@ -62,8 +91,10 @@ public:
             for(int i = 0; i < speed; i++)
             {
                 updateBuffer();
-                //updateCollide(direction);
-                characterShape.move(-1, 0);
+                if(updateCollide(direction, vecCollideObjects) == 0)
+                {
+                    characterShape.move(-1, 0);
+                }
             }
         }
         if(direction == "right")
@@ -71,8 +102,10 @@ public:
             for(int i = 0; i < speed; i++)
             {
                 updateBuffer();
-                //updateCollide(direction);
-                characterShape.move(1, 0);
+                if(updateCollide(direction, vecCollideObjects) == 0)
+                {
+                    characterShape.move(1, 0);
+                }
             }
         }
     }
@@ -85,36 +118,152 @@ public:
         bufferRight.setPosition(sf::Vector2f(characterShape.getPosition().x  + characterShape.getSize().x, characterShape.getPosition().y));
     }
     
-    /*int updateCollide(std::string direction)
+    int updateCollide(std::string direction, std::vector<collideObject> vecCollideObjects)
     {
         if(direction == "up")
         {
-            
+            for(int i = 0; i < vecCollideObjects.size(); i++)
+            {
+                if(bufferTop.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                {
+                    return 1;
+                }
+            }
+            return 0;
         }
         if(direction == "down")
         {
-            
+            for(int i = 0; i < vecCollideObjects.size(); i++)
+            {
+                if(bufferBottom.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                {
+                    return 1;
+                }
+            }
+            return 0;
         }
         if(direction == "left")
         {
-            
+            for(int i = 0; i < vecCollideObjects.size(); i++)
+            {
+                if(bufferLeft.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                {
+                    return 1;
+                }
+            }
+            return 0;
         }
         if(direction == "right")
         {
-            
+            for(int i = 0; i < vecCollideObjects.size(); i++)
+            {
+                if(bufferRight.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                {
+                    return 1;
+                }
+            }
+            return 0;
         }
-    }*/
+    }
     
+};
+
+class sfmlLoop
+{
+private:
+    
+    sf::RenderWindow window;
+    sf::Event event;
+    
+    
+    character character1;
+    std::vector<collideObject> vecCollideObjects;
+    
+public:
+    
+    sfmlLoop() : 
+    character1(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green)
+    {
+        window.create(sf::VideoMode(1680, 1050), "SFML works!"/*, sf::Style::None*/);
+        window.setFramerateLimit(60);
+        
+        setCollideObjects(40);
+    }
+    
+    void sfml()
+    {
+
+        while (window.isOpen())
+        {
+            buttonPressed();
+            
+            while (window.pollEvent(event))
+            {
+                events();
+            }
+            windowUpdate();
+        }
+    }
+    
+    void buttonPressed()
+    {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            character1.charMove("up", vecCollideObjects);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            character1.charMove("down", vecCollideObjects);
+        }
+        //
+        //
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        {
+            character1.charMove("left", vecCollideObjects);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+        {
+            character1.charMove("right", vecCollideObjects);
+        }
+    }
+
+    void events()
+    {
+        if (event.type == sf::Event::Closed)
+            window.close();
+    }
+    
+    void windowUpdate()
+    {
+        window.clear(sf::Color::White);
+        window.draw(character1.getCharacter());
+        drawCollideObjects();
+        window.display();
+    }
+    
+    void setCollideObjects(int count)
+    {
+        //wall(sf::Vector2f wallSize, sf::Vector2f wallPos, sf::Color wallCol)
+        for(int i = 0; i < count; i++)
+        {
+            vecCollideObjects.push_back(collideObject(sf::Vector2f(32, 32), sf::Vector2f(512, 512), sf::Color::Blue));
+        }
+    }
+    
+    void drawCollideObjects()
+    {
+        for(int i = 0; i < vecCollideObjects.size(); i++)
+        {
+            window.draw(vecCollideObjects[i].getObject());
+        }
+    }
 };
 
 int main()
 {
-	sfml();
+    sfmlLoop sfmlL;
+    
+	sfmlL.sfml();
 	
 	return 0;
-}
-
-void sfml()
-{
-    
 }
