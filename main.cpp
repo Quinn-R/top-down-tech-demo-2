@@ -62,7 +62,7 @@ public:
         return characterShape;
     }
     
-    void charMove(std::string direction, std::vector<collideObject> vecCollideObjects)
+    void charMove(std::string direction, std::vector< std::vector<collideObject> > vecCollideObjects)
     {
         if(direction == "up")
         {
@@ -118,15 +118,18 @@ public:
         bufferRight.setPosition(sf::Vector2f(characterShape.getPosition().x  + characterShape.getSize().x, characterShape.getPosition().y));
     }
     
-    int updateCollide(std::string direction, std::vector<collideObject> vecCollideObjects)
+    int updateCollide(std::string direction, std::vector< std::vector<collideObject> > vecCollideObjects)
     {
         if(direction == "up")
         {
             for(int i = 0; i < vecCollideObjects.size(); i++)
             {
-                if(bufferTop.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                for(int j = 0; j < vecCollideObjects[i].size(); j++)
                 {
-                    return 1;
+                    if(bufferTop.getGlobalBounds().intersects(vecCollideObjects[i][j].getObject().getGlobalBounds()))
+                    {
+                        return 1;
+                    }
                 }
             }
             return 0;
@@ -135,9 +138,12 @@ public:
         {
             for(int i = 0; i < vecCollideObjects.size(); i++)
             {
-                if(bufferBottom.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                for(int j = 0; j < vecCollideObjects[i].size(); j++)
                 {
-                    return 1;
+                    if(bufferBottom.getGlobalBounds().intersects(vecCollideObjects[i][j].getObject().getGlobalBounds()))
+                    {
+                        return 1;
+                    }
                 }
             }
             return 0;
@@ -146,9 +152,12 @@ public:
         {
             for(int i = 0; i < vecCollideObjects.size(); i++)
             {
-                if(bufferLeft.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                for(int j = 0; j < vecCollideObjects[i].size(); j++)
                 {
-                    return 1;
+                    if(bufferLeft.getGlobalBounds().intersects(vecCollideObjects[i][j].getObject().getGlobalBounds()))
+                    {
+                        return 1;
+                    }
                 }
             }
             return 0;
@@ -157,9 +166,12 @@ public:
         {
             for(int i = 0; i < vecCollideObjects.size(); i++)
             {
-                if(bufferRight.getGlobalBounds().intersects(vecCollideObjects[i].getObject().getGlobalBounds()))
+                for(int j = 0; j < vecCollideObjects[i].size(); j++)
                 {
-                    return 1;
+                    if(bufferRight.getGlobalBounds().intersects(vecCollideObjects[i][j].getObject().getGlobalBounds()))
+                    {
+                        return 1;
+                    }
                 }
             }
             return 0;
@@ -175,18 +187,18 @@ private:
     sf::RenderWindow window;
     sf::Event event;
     
-    
-    character character1;
-    std::vector<collideObject> vecCollideObjects;
+    std::vector< std::vector<collideObject> > vecCollideObjects;
+    std::vector<collideObject> vecBuilding1;
+    std::vector<character> vecCharacter;
     
 public:
     
-    sfmlLoop() : 
-    character1(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green)
+    sfmlLoop()
     {
         window.create(sf::VideoMode(1680, 1050), "SFML works!"/*, sf::Style::None*/);
         window.setFramerateLimit(60);
         
+        setCharacterObjects(1);
         setCollideObjects(40);
     }
     
@@ -209,21 +221,21 @@ public:
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
         {
-            character1.charMove("up", vecCollideObjects);
+            vecCharacter[0].charMove("up", vecCollideObjects);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         {
-            character1.charMove("down", vecCollideObjects);
+            vecCharacter[0].charMove("down", vecCollideObjects);
         }
         //
         //
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         {
-            character1.charMove("left", vecCollideObjects);
+            vecCharacter[0].charMove("left", vecCollideObjects);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
         {
-            character1.charMove("right", vecCollideObjects);
+            vecCharacter[0].charMove("right", vecCollideObjects);
         }
     }
 
@@ -236,17 +248,53 @@ public:
     void windowUpdate()
     {
         window.clear(sf::Color::White);
-        window.draw(character1.getCharacter());
         drawCollideObjects();
+        drawCharacter();
         window.display();
+    }
+    
+    void setCharacterObjects(int count)
+    {
+        //character(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green);
+        for(int i = 0; i < count; i++)
+        {
+            vecCharacter.push_back(character(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green));
+        }
     }
     
     void setCollideObjects(int count)
     {
+        int x = 500, y = 500;
+        
         //wall(sf::Vector2f wallSize, sf::Vector2f wallPos, sf::Color wallCol)
         for(int i = 0; i < count; i++)
         {
-            vecCollideObjects.push_back(collideObject(sf::Vector2f(32, 32), sf::Vector2f(512, 512), sf::Color::Blue));
+            vecBuilding1.push_back(collideObject(sf::Vector2f(32, 32), sf::Vector2f(x, y), sf::Color::Blue));
+            if(i < 10)
+            {
+                x = x + 32;
+            }
+            if(i < 20)
+            {
+                y = y + 32;
+            }
+            if(i < 30)
+            {
+                x = x - 32;
+            }
+            if(i < 40)
+            {
+                y = y - 32;
+            }
+        }
+        vecCollideObjects.push_back(vecBuilding1);
+    }
+    
+    void drawCharacter()
+    {
+        for(int i = 0; i < vecCharacter.size(); i++)
+        {
+            window.draw(vecCharacter[i].getCharacter());
         }
     }
     
@@ -254,7 +302,10 @@ public:
     {
         for(int i = 0; i < vecCollideObjects.size(); i++)
         {
-            window.draw(vecCollideObjects[i].getObject());
+            for(int j = 0; j < vecCollideObjects.size(); j++)
+            {
+                window.draw(vecCollideObjects[i][j].getObject());
+            }
         }
     }
 };
