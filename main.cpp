@@ -38,7 +38,7 @@ private:
     
 public:
     
-    character(int sp, sf::Vector2f charSize, sf::Color charCol, sf::Color bufCol)
+    character(int sp, sf::Vector2f charSize, sf::Vector2f charPos, sf::Color charCol, sf::Color bufCol)
     {
         
         speed = sp;
@@ -48,6 +48,8 @@ public:
         bufferBottom.setSize(sf::Vector2f(characterShape.getSize().x, 1));
         bufferLeft.setSize(sf::Vector2f(1, characterShape.getSize().y));
         bufferRight.setSize(sf::Vector2f(1, characterShape.getSize().y));
+        
+        characterShape.setPosition(charPos);
         
         characterShape.setFillColor(charCol);
         bufferTop.setFillColor(bufCol);
@@ -258,7 +260,7 @@ public:
         //character(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green);
         for(int i = 0; i < count; i++)
         {
-            vecCharacter.push_back(character(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green));
+            vecCharacter.push_back(character(4, sf::Vector2f(32, 32), sf::Vector2f(450, 450), sf::Color::Black, sf::Color::Green));
         }
     }
     
@@ -269,23 +271,28 @@ public:
         //wall(sf::Vector2f wallSize, sf::Vector2f wallPos, sf::Color wallCol)
         for(int i = 0; i < count; i++)
         {
-            vecBuilding1.push_back(collideObject(sf::Vector2f(32, 32), sf::Vector2f(x, y), sf::Color::Blue));
+            
             if(i < 10)
             {
                 x = x + 32;
             }
-            if(i < 20)
+            else if(i < 20)
             {
                 y = y + 32;
+                if(i == 11 || i == 12)
+                {
+                    continue;
+                }
             }
-            if(i < 30)
+            else if(i < 30)
             {
                 x = x - 32;
             }
-            if(i < 40)
+            else if(i < 40)
             {
                 y = y - 32;
             }
+            vecBuilding1.push_back(collideObject(sf::Vector2f(32, 32), sf::Vector2f(x, y), sf::Color::Blue));
         }
         vecCollideObjects.push_back(vecBuilding1);
     }
@@ -302,7 +309,7 @@ public:
     {
         for(int i = 0; i < vecCollideObjects.size(); i++)
         {
-            for(int j = 0; j < vecCollideObjects.size(); j++)
+            for(int j = 0; j < vecCollideObjects[i].size(); j++)
             {
                 window.draw(vecCollideObjects[i][j].getObject());
             }
