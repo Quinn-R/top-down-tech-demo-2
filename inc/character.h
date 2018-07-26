@@ -10,6 +10,7 @@ private:
     
     int speed;
     int isNpc;
+    int touchingGround;
     
     //std::vector<>
     
@@ -27,6 +28,7 @@ public:
     
     void charMove(std::string direction, std::vector< std::vector<collideObject> > vecCollideObjects);
     void updateBuffer();
+    void gravity(std::vector< std::vector<collideObject> > vecCollideObjects);
 
     int updateCollide(std::string direction, std::vector< std::vector<collideObject> > vecCollideObjects);
     

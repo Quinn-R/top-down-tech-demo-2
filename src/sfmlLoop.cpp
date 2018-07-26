@@ -17,6 +17,7 @@ void sfmlLoop::sfml()
     while (window.isOpen())
     {
         buttonPressed();
+        vecCharacter[0].gravity(vecCollideObjects);
         
         while (window.pollEvent(event))
         {
@@ -67,13 +68,13 @@ void sfmlLoop::setCharacterObjects(int count)
     //character(4, sf::Vector2f(32, 32), sf::Color::Black, sf::Color::Green);
     for(int i = 0; i < count; i++)
     {
-        vecCharacter.push_back(character(4, 0, sf::Vector2f(32, 32), sf::Vector2f(450, 450), sf::Color::Black, sf::Color::Green));
+        vecCharacter.push_back(character(4, 0, sf::Vector2f(32, 32), sf::Vector2f(0, 0), sf::Color::Black, sf::Color::Green));
     }
 }
 
 void sfmlLoop::setCollideObjects(int count)
 {
-    int x = 500, y = 500;
+    int x = 10, y = 500;
     
     //wall(sf::Vector2f wallSize, sf::Vector2f wallPos, sf::Color wallCol)
     for(int i = 0; i < count; i++)
